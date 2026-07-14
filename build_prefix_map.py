@@ -329,9 +329,6 @@ font-size:13.5px}
 CFG = {"ACAD_YEAR": ACAD_YEAR, "ABBR": ABBR, "DEPT_FIX": DEPT_FIX,
        "CURATED": CURATED, "PALETTE": PALETTE}
 
-AY_LABEL = ACAD_YEAR.replace("-", "/")[:7]  # 2026-2027 -> 2026/27
-AY_LABEL = ACAD_YEAR.split("-")[0] + "/" + ACAD_YEAR.split("-")[1][-2:]
-
 CFG_JSON = json.dumps(CFG, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
 
 # Extra CSS for the online-only loading / error states.
@@ -454,7 +451,7 @@ function openPrefix(p){
   const b=document.getElementById('dbadge'); b.textContent=p; b.style.background=curColor;
   document.getElementById('dtitle').textContent=info.dep;
   document.getElementById('dgloss').textContent=info.gloss||'';
-  document.getElementById('dsub').textContent=info.abbr+' · '+info.fac+' — '+info.total+' modules, '+info.offered+' offered this AY';
+  document.getElementById('dsub').textContent=info.abbr+' · '+info.fac+' — '+info.total+' modules, '+info.offered+' currently offered';
   dq.value=''; renderMods(p,''); ov.classList.add('on'); document.body.style.overflow='hidden'; dq.focus();
 }
 function renderMods(p,filter){
@@ -572,11 +569,15 @@ function candidateAYs(){
   if(!out.length) out.push(ACAD_YEAR);           // opened before the floor year
   return out;
 }
-function ayLabel(ay){ const p=ay.split('-'); return p[0]+'/'+p[1].slice(-2); }
-function applyYearLabels(ay){
-  const L=ayLabel(ay);
-  document.title='NUSMods Prefix Map — AY'+L+' (live)';
-  document.querySelectorAll('.js-ay').forEach(e=>{e.textContent=L;});
+// Show when NUSMods last rebuilt the data, from the response's Last-Modified
+// header (a CORS-safelisted header, so readable even from a file:// page).
+function showDataDate(lastModified){
+  const wrap=document.getElementById('asofwrap'), out=document.getElementById('asof');
+  if(!wrap||!out) return;
+  const d=lastModified?new Date(lastModified):null;
+  if(!d||isNaN(d)){ wrap.style.display='none'; return; }
+  out.textContent=d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  wrap.style.display='';
 }
 
 /* ---------- boot: fetch live data, then build+render ---------- */
@@ -587,7 +588,7 @@ async function boot(){
       const r=await fetch('https://api.nusmods.com/v2/'+ay+'/moduleInfo.json');
       if(!r.ok)throw new Error('HTTP '+r.status);
       const mods=await r.json();
-      applyYearLabels(ay);
+      showDataDate(r.headers.get('last-modified'));
       render(build(mods));
       loading.style.display='none';
       apply();
@@ -602,17 +603,17 @@ boot();
 PAGE = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NUSMods Prefix Map — AY__AY__ (live)</title>
+<title>NUSMods Prefix Map</title>
 <style>
 __CSS__
 __EXTRA_CSS__
 </style></head><body>
 <header>
 <h1>NUSMods Module Prefix Map</h1>
-<div class="sub">Academic Year <span class="js-ay">__AY__</span> · fetched live from the NUSMods API · every course-code prefix grouped by faculty &amp; department</div>
+<div class="sub">Fetched live from the NUSMods API · every course-code prefix grouped by faculty &amp; department</div>
 <div class="stats">
 <div class="stat"><b id="s-mod">…</b><span id="lbl-mod">modules</span></div>
-<div class="stat" id="stat-off"><b id="s-off">…</b><span>offered this AY</span></div>
+<div class="stat" id="stat-off"><b id="s-off">…</b><span>currently offered</span></div>
 <div class="stat"><b id="s-pfx">…</b><span>prefixes</span></div>
 <div class="stat"><b id="s-fac">…</b><span>faculties</span></div>
 <div class="stat"><b id="s-dep">…</b><span>departments</span></div>
@@ -632,7 +633,7 @@ __EXTRA_CSS__
 <div id="errbox">Couldn’t reach the NUSMods API. This page needs an internet connection.<br><button class="retry" onclick="boot()">Retry</button></div>
 </main>
 <div id="tip" role="tooltip"></div>
-<footer>Source: NUSMods API v2 (api.nusmods.com) · fetched live on load · ⧉ = prefix also used by other faculties/departments · “live” = offered ≥ 1 semester in AY<span class="js-ay">__AY__</span> · click any prefix for its modules</footer>
+<footer>Source: NUSMods API v2 (api.nusmods.com) · fetched live on load<span id="asofwrap" style="display:none"> · data as of <span id="asof"></span></span> · ⧉ = prefix also used by other faculties/departments · “live” = offered in ≥ 1 semester · click any prefix for its modules</footer>
 <div id="ov" onclick="if(event.target===this)closeDrw()">
  <aside id="drw" role="dialog" aria-modal="true">
   <div class="d-head">
@@ -655,10 +656,9 @@ page = (PAGE
         .replace("__CSS__", CSS)
         .replace("__EXTRA_CSS__", EXTRA_CSS)
         .replace("__CFG__", CFG_JSON)
-        .replace("__JS__", JS)
-        .replace("__AY__", AY_LABEL))
+        .replace("__JS__", JS))
 
 out = os.path.join(HERE, "prefix_map.html")
 open(out, "w", encoding="utf-8").write(page)
 kb = round(len(page.encode("utf-8")) / 1024, 1)
-print(f"Wrote prefix_map.html  ({kb} KB, {len(CFG['CURATED'])} curated glosses, AY {AY_LABEL})")
+print(f"Wrote prefix_map.html  ({kb} KB, {len(CFG['CURATED'])} curated glosses)")

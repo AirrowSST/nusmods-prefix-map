@@ -24,10 +24,12 @@ NUSMods catalogue (`api.nusmods.com`) and builds the tree in-browser:
 - Hover a prefix for its gloss; ⧉ marks prefixes shared across faculties.
 - Filter by "offered this year", search, and expand/collapse.
 
-The page auto-advances to the current academic year: on load it works out the
-current NUS AY (which starts in August) and fetches that, falling back to the
-previous year if the new year's data isn't published yet — so you don't need to
-rebuild each year. `ACAD_YEAR` in the generator sets the floor/default label.
+The page stays current on its own: on load it works out the current NUS academic
+year (which starts in August) and fetches that, falling back to the previous year
+if the new year's data isn't published yet — so you don't need to rebuild each
+year. The footer shows a **"data as of \<date\>"** stamp taken from the API's
+`Last-Modified` header, so you can always see how fresh the data is. `ACAD_YEAR`
+in the generator is just the earliest year it will fetch (the floor).
 
 ## Building
 
