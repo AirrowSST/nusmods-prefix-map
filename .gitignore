@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+
+# Regenerable data snapshot (19 MB; re-downloaded by nusmods_analysis.py)
+nusmods_raw.json
+
+# Generated analysis outputs (produced by nusmods_analysis.py)
+nusmods_faculties.csv
+nusmods_modules.csv
+nusmods_prefixes.csv
+
+# Scratch / working files
+prefix_evidence.txt
