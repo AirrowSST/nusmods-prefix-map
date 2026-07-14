@@ -11,7 +11,7 @@ import json, os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-ACAD_YEAR = "2026-2027"  # NUSMods API year path used for live description fetches
+ACAD_YEAR = "2026-2027"  # floor + default label; the page auto-advances to the current AY at runtime (falls back to this)
 
 ABBR = {
     "Arts and Social Science": "FASS",
@@ -557,19 +557,44 @@ hideGrad.addEventListener('change',apply);
 minorN.addEventListener('input',()=>{if(hideMinor.checked)apply();});
 live.addEventListener('change',()=>{apply(); if(ov.classList.contains('on')&&curP)renderMods(curP,dq.value);});
 
+/* ---------- academic year: auto-advance by date, with fallback ---------- */
+// NUS academic years start in August. Before August we're still in the AY that
+// began the previous calendar year. We try the current AY, then fall back to the
+// previous one if the new year's data isn't published yet. ACAD_YEAR (the year
+// the glosses were curated against) is the floor, so we never probe older data.
+function candidateAYs(){
+  const now=new Date();
+  let start=now.getFullYear();
+  if(now.getMonth()<7) start-=1;                 // Jan–Jul -> AY began last year
+  const floor=parseInt(ACAD_YEAR.split('-')[0],10);
+  const out=[];
+  for(const y of [start,start-1]){ if(y>=floor) out.push(y+'-'+(y+1)); }
+  if(!out.length) out.push(ACAD_YEAR);           // opened before the floor year
+  return out;
+}
+function ayLabel(ay){ const p=ay.split('-'); return p[0]+'/'+p[1].slice(-2); }
+function applyYearLabels(ay){
+  const L=ayLabel(ay);
+  document.title='NUSMods Prefix Map — AY'+L+' (live)';
+  document.querySelectorAll('.js-ay').forEach(e=>{e.textContent=L;});
+}
+
 /* ---------- boot: fetch live data, then build+render ---------- */
 async function boot(){
   errbox.classList.remove('on'); loading.style.display='block'; grid.innerHTML='';
-  try{
-    const r=await fetch('https://api.nusmods.com/v2/'+ACAD_YEAR+'/moduleInfo.json');
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    const mods=await r.json();
-    render(build(mods));
-    loading.style.display='none';
-    apply();
-  }catch(e){
-    loading.style.display='none'; errbox.classList.add('on');
+  for(const ay of candidateAYs()){
+    try{
+      const r=await fetch('https://api.nusmods.com/v2/'+ay+'/moduleInfo.json');
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const mods=await r.json();
+      applyYearLabels(ay);
+      render(build(mods));
+      loading.style.display='none';
+      apply();
+      return;
+    }catch(e){ /* try the next candidate year */ }
   }
+  loading.style.display='none'; errbox.classList.add('on');
 }
 boot();
 """
@@ -584,7 +609,7 @@ __EXTRA_CSS__
 </style></head><body>
 <header>
 <h1>NUSMods Module Prefix Map</h1>
-<div class="sub">Academic Year __AY__ · fetched live from the NUSMods API · every course-code prefix grouped by faculty &amp; department</div>
+<div class="sub">Academic Year <span class="js-ay">__AY__</span> · fetched live from the NUSMods API · every course-code prefix grouped by faculty &amp; department</div>
 <div class="stats">
 <div class="stat"><b id="s-mod">…</b><span id="lbl-mod">modules</span></div>
 <div class="stat" id="stat-off"><b id="s-off">…</b><span>offered this AY</span></div>
@@ -607,7 +632,7 @@ __EXTRA_CSS__
 <div id="errbox">Couldn’t reach the NUSMods API. This page needs an internet connection.<br><button class="retry" onclick="boot()">Retry</button></div>
 </main>
 <div id="tip" role="tooltip"></div>
-<footer>Source: NUSMods API v2 (api.nusmods.com) · fetched live on load · ⧉ = prefix also used by other faculties/departments · “live” = offered ≥ 1 semester in AY__AY__ · click any prefix for its modules</footer>
+<footer>Source: NUSMods API v2 (api.nusmods.com) · fetched live on load · ⧉ = prefix also used by other faculties/departments · “live” = offered ≥ 1 semester in AY<span class="js-ay">__AY__</span> · click any prefix for its modules</footer>
 <div id="ov" onclick="if(event.target===this)closeDrw()">
  <aside id="drw" role="dialog" aria-modal="true">
   <div class="d-head">
