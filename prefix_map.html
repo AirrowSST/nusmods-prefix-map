@@ -75,6 +75,12 @@ text-overflow:ellipsis}
 .chip{cursor:pointer}
 .chip:focus-visible{outline:2px solid var(--c);outline-offset:1px}
 .hide{display:none!important}
+/* chips filtered out by the toggles: greyed card while the dept is expanded,
+   removed (and counted as "N hidden") once the dept is collapsed to pills */
+.dept:not(.dclosed) .chip.filtered{opacity:.4;filter:grayscale(.9)}
+.dept:not(.dclosed) .chip.filtered:hover{opacity:.75;filter:grayscale(.35)}
+.dept.dclosed .chip.filtered{display:none}
+.dept:not(.dclosed) .dept-hidden{display:none}
 /* instant (0-delay) hover tooltip for prefix descriptions */
 #tip{position:fixed;z-index:60;pointer-events:none;display:none;max-width:280px;
 background:#1a1a1f;color:#fff;font-size:12px;line-height:1.35;padding:5px 9px;
@@ -304,17 +310,18 @@ function apply(){
   document.querySelectorAll('.fac').forEach(fac=>{
     let facVis=false; const facMatch=!t||fac.dataset.fac.includes(t);
     fac.querySelectorAll('.dept').forEach(dep=>{
-      let depVis=false,hiddenN=0;
+      let depVis=false,filteredN=0;
       dep.querySelectorAll('.chip').forEach(ch=>{
-        const okS=facMatch||ch.dataset.search.includes(t);
+        const okS=facMatch||ch.dataset.search.includes(t);       // search: a true filter
         const okL=!lo||(+ch.dataset.offered>0);
         const okM=!hm||(+ch.dataset.total>mn);
         const okG=!hg||ch.dataset.gradonly!=='1';
-        const show=okS&&okL&&okM&&okG;
-        ch.classList.toggle('hide',!show); if(show)depVis=true;
-        if(!(okL&&okM&&okG))hiddenN++;
+        const passToggles=okL&&okM&&okG;
+        ch.classList.toggle('hide',!okS);                        // search removes in every view
+        ch.classList.toggle('filtered',okS&&!passToggles);       // toggles: grey (expanded) / hide (collapsed)
+        if(okS){depVis=true; if(!passToggles)filteredN++;}
       });
-      dep.querySelector('.dept-hidden').textContent=hiddenN?hiddenN+' hidden':'';
+      dep.querySelector('.dept-hidden').textContent=filteredN?filteredN+' hidden':'';
       dep.classList.toggle('hide',!depVis); if(depVis)facVis=true;
       if(t&&depVis)dep.classList.remove('dclosed');
     });
@@ -326,7 +333,7 @@ function apply(){
 function updateStats(){
   const lo=live.checked;
   let mods=0,offr=0,pfx=0; const facs=new Set(),deps=new Set();
-  document.querySelectorAll('.chip:not(.hide)').forEach(ch=>{
+  document.querySelectorAll('.chip:not(.hide):not(.filtered)').forEach(ch=>{
     const tot=+ch.dataset.total,off=+ch.dataset.offered;
     mods+=lo?off:tot; offr+=off; pfx++;
     facs.add(ch.closest('.fac')); deps.add(ch.closest('.dept'));
