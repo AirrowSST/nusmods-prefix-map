@@ -10,5 +10,6 @@ nusmods_faculties.csv
 nusmods_modules.csv
 nusmods_prefixes.csv
 
-# Scratch / working files
+# Scratch / working files (underscore-prefixed temp convention)
 prefix_evidence.txt
+_*
