@@ -452,7 +452,7 @@ function render(b){
 function facColor(el){const s=el.closest('.fac');return s?getComputedStyle(s).getPropertyValue('--c').trim():'#4f46e5';}
 function openPrefix(p){
   const info=DATA[p]; if(!info)return;
-  const src=event&&event.currentTarget?event.currentTarget:null;
+  const src=(typeof event!=='undefined'&&event&&event.currentTarget)?event.currentTarget:null;
   curColor=src?facColor(src):'#4f46e5';
   const b=document.getElementById('dbadge'); b.textContent=p; b.style.background=curColor;
   document.getElementById('dtitle').textContent=info.dep;
@@ -599,11 +599,18 @@ async function boot(){
       render(build(mods));
       loading.style.display='none';
       apply();
+      applyHash();
       return;
     }catch(e){ /* try the next candidate year */ }
   }
   loading.style.display='none'; errbox.classList.add('on');
 }
+/* deep-link: prefix_map.html#CS opens the CS drawer (used by Anki cards) */
+function applyHash(){
+  const h=decodeURIComponent((location.hash||'').replace(/^#/,'')).trim().toUpperCase();
+  if(h&&typeof DATA!=='undefined'&&DATA[h])openPrefix(h);
+}
+window.addEventListener('hashchange',applyHash);
 boot();
 """
 
