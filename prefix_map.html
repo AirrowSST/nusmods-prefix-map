@@ -422,10 +422,12 @@ async function boot(){
   }
   loading.style.display='none'; errbox.classList.add('on');
 }
-/* deep-link: prefix_map.html#CS opens the CS drawer (used by Anki cards) */
+/* deep-link: prefix_map.html#CS types CS into the search box and filters
+   (used by Anki cards) — does NOT open the drawer, so the user lands on the
+   live search view for that prefix. */
 function applyHash(){
   const h=decodeURIComponent((location.hash||'').replace(/^#/,'')).trim().toUpperCase();
-  if(h&&typeof DATA!=='undefined'&&DATA[h])openPrefix(h);
+  if(h){ q.value=h; apply(); q.scrollIntoView({block:'start'}); }
 }
 window.addEventListener('hashchange',applyHash);
 boot();
