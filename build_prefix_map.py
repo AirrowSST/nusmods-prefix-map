@@ -229,8 +229,13 @@ h1{margin:0 0 2px;font-size:19px;letter-spacing:-.01em}
 .stats{display:flex;gap:18px;margin-top:10px;flex-wrap:wrap}
 .stat b{font-size:18px} .stat span{color:var(--mut);font-size:12px;display:block}
 .controls{display:flex;gap:12px;margin-top:12px;align-items:center;flex-wrap:wrap}
-#q{flex:1;min-width:220px;padding:9px 13px;border:1px solid var(--line);border-radius:9px;
+.qwrap{flex:1;min-width:220px;position:relative;display:flex}
+#q{flex:1;min-width:0;padding:9px 13px;border:1px solid var(--line);border-radius:9px;
 font-size:14px;background:var(--card)}
+.scope-tag{position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;
+font-size:11px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;color:var(--mut);
+background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:2px 9px}
+.scope-tag.bad{color:#b91c1c;border-color:#f0b4b4;background:#fdecec}
 .toggle{font-size:13px;color:var(--mut);display:flex;gap:6px;align-items:center;cursor:pointer;user-select:none}
 #minorN{width:44px;padding:2px 5px;border:1px solid var(--line);border-radius:6px;font:inherit;font-size:12.5px}
 main{max-width:1180px;margin:20px auto;padding:0 24px 80px}
@@ -427,6 +432,7 @@ function render(b){
         const tip=esc(r.prefix)+(gloss?' — '+esc(gloss):'');
         return '<div class="chip" onclick="openPrefix(\''+esc(r.prefix)+'\')" role="button" tabindex="0" '
           +'data-search="'+esc(r.prefix.toLowerCase())+' '+esc(dep.toLowerCase())+' '+esc(fac.toLowerCase())+' '+esc(abbr.toLowerCase())+'" '
+          +'data-prefix="'+esc(r.prefix.toLowerCase())+'" data-dept="'+esc(dep.toLowerCase())+'" data-fac="'+esc(fac.toLowerCase())+' '+esc(abbr.toLowerCase())+'" data-abbr="'+esc(abbr.toLowerCase())+'" '
           +'data-offered="'+r.offered+'" data-total="'+r.total+'" data-gradonly="'+gradOnly+'" data-tip="'+tip+'">'
           +'<div class="pfx">'+esc(r.prefix)+span+'</div>'
           +'<div class="gloss">'+esc(gloss)+'</div>'
@@ -485,17 +491,49 @@ function closeDrw(){ov.classList.remove('on');document.body.style.overflow='';}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrw();});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement.classList.contains('chip'))document.activeElement.click();});
 
-/* ---------- filters + stats (unchanged from the offline page) ---------- */
+/* ---------- filters + stats ---------- */
+/* Field-scoped query syntax: `field:value` restricts matching to one field
+   (prefix / dept|department / fac|faculty / abbr). Prefixes are often common
+   letter-strings (e.g. LL), so an unscoped search of "LL" also hits dept/faculty
+   TEXT containing "ll"; `prefix:LL` avoids that. A `/regex/` value (always
+   case-insensitive) allows precise matches, e.g. prefix:/^LL$/ → exactly LL.
+   Unscoped queries keep the old match-everything-across-fields behaviour. */
+function parseQuery(raw){
+  const s=(raw||'').trim();
+  if(!s) return {kind:'empty'};
+  const m=s.match(/^(prefix|dept|department|fac|faculty|abbr)\s*:\s*(.*)$/i);
+  if(!m) return {kind:'all', val:s.toLowerCase()};
+  const f=m[1].toLowerCase();
+  const field=f==='department'?'dept':f==='faculty'?'fac':f;    // → prefix|dept|fac|abbr
+  const val=m[2].trim();
+  const rx=val.match(/^\/(.*)\/([a-z]*)$/);                     // /pattern/flags form
+  if(rx){
+    try{ const fl=rx[2].includes('i')?rx[2]:rx[2]+'i'; return {kind:'scope',field,re:new RegExp(rx[1],fl),label:field+' · regex'}; }
+    catch(e){ return {kind:'scope',field,bad:true,label:field+' · bad regex'}; }
+  }
+  return {kind:'scope',field,val:val.toLowerCase(),label:field};
+}
+function matchChip(ch,Q,facMatch){
+  if(Q.kind==='empty') return true;
+  if(Q.kind==='all')   return facMatch||ch.dataset.search.includes(Q.val);
+  if(Q.bad)            return false;                            // invalid regex → nothing matches
+  const hay=ch.dataset[Q.field]||'';
+  return Q.re ? Q.re.test(hay) : hay.includes(Q.val);
+}
+function renderScopeTag(Q){
+  if(Q.kind==='scope'){ scopeTag.textContent=Q.label; scopeTag.classList.toggle('bad',!!Q.bad); scopeTag.classList.remove('hide'); }
+  else scopeTag.classList.add('hide');
+}
 function apply(){
-  const t=q.value.trim().toLowerCase(),lo=live.checked;
+  const Q=parseQuery(q.value),lo=live.checked;
   const hm=hideMinor.checked,mn=+minorN.value||0,hg=hideGrad.checked;
   let anyFac=false;
   document.querySelectorAll('.fac').forEach(fac=>{
-    let facVis=false; const facMatch=!t||fac.dataset.fac.includes(t);
+    let facVis=false; const facMatch=Q.kind==='all'&&fac.dataset.fac.includes(Q.val);
     fac.querySelectorAll('.dept').forEach(dep=>{
       let depVis=false,filteredN=0;
       dep.querySelectorAll('.chip').forEach(ch=>{
-        const okS=facMatch||ch.dataset.search.includes(t);       // search: a true filter
+        const okS=matchChip(ch,Q,facMatch);                      // search: a true filter
         const okL=!lo||(+ch.dataset.offered>0);
         const okM=!hm||(+ch.dataset.total>mn);
         const okG=!hg||ch.dataset.gradonly!=='1';
@@ -506,11 +544,12 @@ function apply(){
       });
       dep.querySelector('.dept-hidden').textContent=filteredN?filteredN+' hidden':'';
       dep.classList.toggle('hide',!depVis); if(depVis)facVis=true;
-      if(t&&depVis)dep.classList.remove('dclosed');
+      if(Q.kind!=='empty'&&depVis)dep.classList.remove('dclosed');
     });
     fac.classList.toggle('hide',!facVis); if(facVis)anyFac=true;
   });
   nores.classList.toggle('hide',anyFac);
+  renderScopeTag(Q);
   updateStats();
 }
 function updateStats(){
@@ -605,12 +644,13 @@ async function boot(){
   }
   loading.style.display='none'; errbox.classList.add('on');
 }
-/* deep-link: prefix_map.html#CS types CS into the search box and filters
-   (used by Anki cards) — does NOT open the drawer, so the user lands on the
-   live search view for that prefix. */
+/* deep-link: prefix_map.html#CS types `prefix:CS` into the search box and filters
+   (used by Anki cards) — scopes to the PREFIX field so common letter-strings don't
+   also match dept/faculty text. Does NOT open the drawer; the user lands on the
+   live prefix-scoped search view. Card links stay #CODE, so no re-import needed. */
 function applyHash(){
   const h=decodeURIComponent((location.hash||'').replace(/^#/,'')).trim().toUpperCase();
-  if(h){ q.value=h; apply(); q.scrollIntoView({block:'start'}); }
+  if(h){ q.value='prefix:'+h; apply(); q.scrollIntoView({block:'start'}); }
 }
 window.addEventListener('hashchange',applyHash);
 boot();
@@ -635,7 +675,7 @@ __EXTRA_CSS__
 <div class="stat"><b id="s-dep">…</b><span>departments</span></div>
 </div>
 <div class="controls">
-<input id="q" placeholder="Search prefix, department or faculty… (e.g. MA, chemistry, CDE)" autocomplete="off">
+<span class="qwrap"><input id="q" placeholder="Search… e.g. MA · prefix:LL · dept:law · fac:soc · regex prefix:/^LL$/" autocomplete="off"><span id="scopeTag" class="scope-tag hide"></span></span>
 <label class="toggle"><input type="checkbox" id="liveOnly"> live modules only</label>
 <label class="toggle"><input type="checkbox" id="hideMinor"> hide minor prefixes (≤<input type="number" id="minorN" value="3" min="1" max="99" title="max modules to treat as minor"> modules)</label>
 <label class="toggle"><input type="checkbox" id="hideGrad"> hide grad-only prefixes</label>
