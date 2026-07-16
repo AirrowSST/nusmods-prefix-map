@@ -207,7 +207,11 @@ function build(mods){
     if(off)e.offered++;
     if(m.title)inc(e.examples,m.title);
     let dig=null; for(const c of (m.moduleCode||'')){if(c>='0'&&c<='9'){dig=c;break;}}
-    if(dig){if('1234'.includes(dig))e.ug++;else e.grad++;}
+    // 1-4 undergraduate; 5-7 graduate; 8-9 are administrative placeholders
+    // (Advance Placement Credit, Credit Transfer, Exchange) and no-digit codes are
+    // not taught modules, so they count toward neither level. Default lean is UG.
+    if('1234'.includes(dig))e.ug++;
+    else if('567'.includes(dig))e.grad++;
     modrecs.get(p).push({c:m.moduleCode||'',t:m.title||'',u:m.moduleCredit||'',o:off?1:0,d:(m.description||'').trim()});
   }
   for(const recs of modrecs.values())recs.sort((a,b)=>a.c<b.c?-1:a.c>b.c?1:0);
