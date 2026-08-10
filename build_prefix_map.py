@@ -39,6 +39,10 @@ ABBR = {
     "Mechanobiology Institute (MBI)": "MBI",
     "Logistics Inst-Asia Pac": "TLI-AP",
     "University-level Units": "UNIV",
+    # Not a real faculty -- the home for prefixes no single department owns (the GE
+    # pillars et al). Pinned so the section badge matches the Anki card's Abbr field
+    # instead of falling back to a slice that collides with UNIV above.
+    "University-wide": "NUS",
 }
 
 # The API files university-level centres under two interchangeable catch-alls
