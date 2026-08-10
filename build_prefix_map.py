@@ -38,19 +38,36 @@ ABBR = {
     "Multi Disciplinary Programme": "MDP",
     "Mechanobiology Institute (MBI)": "MBI",
     "Logistics Inst-Asia Pac": "TLI-AP",
-    "Non-Faculty-based Departments": "NFB",
-    "NUS": "NUS",
+    "University-level Units": "UNIV",
+}
+
+# The API files university-level centres under two interchangeable catch-alls
+# ("Non-Faculty-based Departments" and a bare "NUS"), so the same unit lands under
+# different faculties depending on the prefix -- NUS Enterprise Academy is "NFB" for
+# TR but "NUS" for ETP. Collapse both into one honest umbrella; the specific centre
+# still shows in the Department field.
+FACULTY_FIX = {
+    "Non-Faculty-based Departments": "University-level Units",
+    "NUS": "University-level Units",
 }
 
 DEPT_FIX = {
     "English,Ling.andTheatre Studies": "English, Linguistics & Theatre Studies",
     "PharmacyandPharmaceuticalScience": "Pharmacy & Pharmaceutical Sciences",
+    # Align with the Anki deck's (better) spellings so both sides read identically.
+    "Sociology and Anthropology": "Sociology & Anthropology",
+    "Chua Thian Poh Comm Leader Center": "Chua Thian Poh Centre for Community Leadership",
+    "NUS-ISS": "NUS Institute of Systems Science",
+    "Logistics Inst - Asia Pac": "Logistics Institute - Asia Pacific",
+    "Center for Engl Lang Comms": "Centre for English Language Communication",
+    # The API leaves these blank; say so rather than inventing an owner.
+    "(none)": "Not attributed",
 }
 
 CURATED = {
     # ---- FASS: Arts & Social Sciences ----
     "PS": "Political Science", "HY": "History", "EC": "Economics", "ECA": "Economics (applied)",
-    "PL": "Psychology", "PLC": "Clinical Psychology", "PLS": "Psychology (personal development)",
+    "PL": "Psychology", "PLC": "Clinical Psychology", "PLS": "Psychology: Life skills & personal development",
     "PLB": "Psychology (elective)", "CH": "Chinese Studies", "CL": "Chinese Language",
     "CHC": "Chinese Studies (grad)", "TRA": "Translation & Interpreting", "INT": "Interpretation & Translation",
     "EN": "English Literature", "ENC": "English Literature (grad)", "EL": "English Language & Linguistics",
@@ -66,86 +83,86 @@ CURATED = {
     "MS": "Malay Studies", "EU": "European Studies", "AS": "American Studies", "AH": "Art History",
     "SSA": "Singapore Studies", "NHS": "Interdisciplinary Humanities", "UIS": "Independent Study modules",
     "FAS": "Internships & academic writing", "ASP": "Research programme (H3)",
-    "DMA": "Design-Your-Own module", "AX": "Exchange placeholder", "RX": "Exchange placeholder",
+    "DMA": "Design-Your-Own module", "AX": "Arts eXchange placeholder", "RX": "Exchange placeholder",
     "GN": "Exchange placeholder", "CK": "China Studies internship", "XD": "Interdisciplinary courses",
-    "SSX": "Exchange placeholder", "XFA": "Integrated Honours project", "FMA": "Field Studies modules",
+    "SSX": "Singapore Studies eXchange placeholder", "XFA": "Integrated Honours project", "FMA": "Field Studies modules",
     "HSA": "Interdisciplinary Asian Studies", "HSH": "Interdisciplinary Humanities",
     "HSS": "Interdisciplinary Social Science", "HS": "Career readiness (Career Compass)",
     "IAN": "Internship (Anthropology)", "IEU": "Internship (European Studies)", "IGL": "Internship (Global Studies)",
     "IJS": "Internship (Japanese Studies)", "INM": "Internship (Communications & New Media)", "IPS": "Internship (Political Science)",
     "ISC": "Internship (Sociology)", "ISE": "Internship (Southeast Asian Studies)", "ISN": "Internship (South Asian Studies)",
-    "UTOA": "Teaching assistantship (UTOP)",
+    "UTOA": "Undergrad Teaching Opportunities: Arts & Social Sciences",
     # Centre for Language Studies
     "LAB": "Indonesian", "LAC": "Chinese", "LAF": "French", "LAG": "German",
     "LAH": "Hindi", "LAJ": "Japanese", "LAK": "Korean", "LAL": "Tamil", "LAM": "Malay",
-    "LAR": "Arabic", "LAS": "Spanish", "LAT": "Thai", "LAV": "Vietnamese", "LAX": "Exchange placeholder",
+    "LAR": "Arabic", "LAS": "Spanish", "LAT": "Thai", "LAV": "Vietnamese", "LAX": "LAnguage eXchange placeholder",
     # General Education pillars
     "GEA": "Gen-Ed: Data Literacy", "GEC": "Gen-Ed: Cultures & Connections", "GEH": "Gen-Ed: Human Cultures",
     "GEI": "Gen-Ed: Digital Literacy", "GEK": "Gen-Ed: Broadening", "GEM": "Gen-Ed: Broadening",
     "GEN": "Gen-Ed: Communities & Engagement", "GEQ": "Gen-Ed: Asking Questions", "GER": "Gen-Ed: Quantitative Reasoning",
     "GES": "Gen-Ed: Singapore Studies", "GESS": "Gen-Ed: Singapore Studies", "GET": "Gen-Ed: Thinking & Expression",
-    "GEX": "Gen-Ed: Critique & Expression", "GXK": "Exchange placeholder (Gen-Ed)", "GDM": "Placeholder module",
+    "GEX": "Gen-Ed: Critique & Expression", "GXK": "Gen-Ed eXchange placeholder", "GDM": "Placeholder module",
     # ---- CELC: Centre for English Language Communication ----
-    "UTW": "Critical thinking & writing", "ES": "Academic & Professional English",
-    "RVX": "Communication seminars", "EM": "Academic English (Music)",
+    "UTW": "UTown: critical Thinking & Writing", "ES": "Academic & Professional English",
+    "RVX": "Ridge View: eXpression & communication", "EM": "Academic English (Music)",
     # ---- CDE: College of Design & Engineering ----
     "IE": "Industrial & Systems Eng.", "EE": "Electrical & Computer Eng.", "CE": "Civil & Environmental Eng.",
     "CEE": "Civil & Environmental Eng.", "ME": "Mechanical Eng.", "AR": "Architecture",
-    "ARD": "Architecture design studio", "ARX": "Exchange placeholder", "AC": "Architectural Conservation",
+    "ARD": "Architecture design studio", "ARX": "ARchitecture eXchange placeholder", "AC": "Architectural Conservation",
     "CN": "Chemical & Biomolecular Eng.", "MLE": "Materials Science & Eng.", "MST": "Materials Science",
-    "ID": "Industrial Design", "IDX": "Exchange placeholder", "BN": "Biomedical Eng.",
+    "ID": "Industrial Design", "IDX": "Industrial Design eXchange placeholder", "BN": "Biomedical Eng.",
     "ESE": "Environmental & Sustainability Eng.", "SH": "Safety & Health Eng.",
     "MT": "Technology & Innovation Mgmt", "OT": "Offshore & Petroleum Eng.", "ESP": "Engineering Science",
     "CDE": "Interdisciplinary design & innovation", "EG": "Eng. (common core)", "PF": "Project & Facilities Mgmt",
     "LA": "Landscape Architecture", "LAD": "Landscape Architecture", "BPS": "Building Performance (grad)",
-    "DEP": "Urban & Regional Planning", "IPM": "Infrastructure & Project Mgmt", "PM": "Project Mgmt",
+    "DEP": "Urban & Regional Design & Planning", "IPM": "Infrastructure & Project Mgmt", "PM": "Project Mgmt",
     "CEG": "Computer Eng.", "RB": "Robotics", "EEK": "Semiconductor & IC Eng.", "SYE": "Systems Eng.",
     "TD": "Technology & Design (systems)", "UD": "Urban Design", "DE": "Environmental Mgmt",
-    "CIT": "Cities & Urban Systems", "ISD": "Sustainable Design studio", "MTM": "Maritime Technology & Mgmt",
+    "CIT": "Cities & Urban Systems", "ISD": "Integrated Studio: sustainable Design", "MTM": "Maritime Technology & Mgmt",
     "SDM": "Systems Design & Mgmt", "BS": "Built Environment (research)", "DTK": "Design Thinking",
     "TP": "Transportation Eng.", "NE": "Nanoengineering", "TDEE": "Electronic Devices & Materials",
     "TDEG": "Eng. (Tech & Design)", "DMD": "Design-Your-Own module", "SSD": "Singapore Built Environment",
-    "BX": "Interdisciplinary elective", "LX": "Environmental Law elective", "EX": "Exchange placeholder",
-    "PFX": "Exchange placeholder", "UTOD": "Teaching assistantship (UTOP)",
-    "UTOE": "Teaching assistantship (UTOP)", "XFE": "Integrated Honours project",
+    "BX": "Interdisciplinary elective", "LX": "Environmental Law elective", "EX": "Engineering eXchange placeholder",
+    "PFX": "Project & Facilities eXchange placeholder", "UTOD": "Undergrad Teaching Opportunities: Design & Engineering",
+    "UTOE": "Undergrad Teaching Opportunities: Engineering", "XFE": "Integrated Honours project",
     # ---- Computing ----
     "CS": "Computer Science", "IS": "Information Systems & Analytics", "CP": "Computing (innovation & self-study)",
     "BT": "Business Analytics", "IT": "Computing (general IT)", "IFS": "Information Security",
-    "AI": "Artificial Intelligence (exec)", "FT": "FinTech", "CSX": "Exchange placeholder",
-    "DMC": "Design-Your-Own module", "UTOC": "Teaching assistantship (UTOP)", "XFC": "Integrated Honours project",
+    "AI": "Artificial Intelligence (exec)", "FT": "FinTech", "CSX": "Computer Science eXchange placeholder",
+    "DMC": "Design-Your-Own module", "UTOC": "Undergrad Teaching Opportunities: Computing", "XFC": "Integrated Honours project",
     # ---- SCALE: Continuing & Lifelong Education (BTech / part-time) ----
-    "TCE": "BTech Civil Eng.", "TEE": "BTech Electrical Eng.", "TME": "BTech Mechanical Eng.",
-    "TCN": "BTech Chemical Eng.", "TIC": "BTech Computing", "TCX": "BTech Computing",
-    "TIE": "BTech Industrial Eng.", "TBA": "Business Analytics", "MSI": "AI & Innovation",
-    "TSC": "BTech Supply Chain", "TE": "BTech Eng.", "TM": "BTech Eng.",
-    "TTG": "BTech Eng. (general)", "AII": "AI & Innovation", "TX": "BTech (general electives)",
-    "MEM": "Environmental Mgmt", "TC": "BTech Chemical Eng.", "TG": "BTech Eng. (general)",
-    "TMA": "BTech Mathematics", "SSE": "BTech (electives)",
+    "TCE": "BTech: Civil Eng.", "TEE": "BTech: Electrical Eng.", "TME": "BTech: Mechanical Eng.",
+    "TCN": "BTech: Chemical Eng.", "TIC": "BTech: Computing", "TCX": "BTech: Computing",
+    "TIE": "BTech: Industrial Eng.", "TBA": "Business Analytics", "MSI": "AI & Innovation",
+    "TSC": "BTech: Supply Chain", "TE": "BTech: Electronics Eng.", "TM": "BTech: Mechanical Eng.",
+    "TTG": "BTech: General Eng.", "AII": "AI & Innovation", "TX": "BTech: general electives",
+    "MEM": "Environmental Mgmt", "TC": "BTech: Chemical Eng.", "TG": "BTech: General Eng.",
+    "TMA": "BTech: MAthematics", "SSE": "Singapore Studies Elective (BTech)",
     # ---- Dentistry ----
     "RD": "Restorative Dentistry", "PRV": "Preventive Dentistry", "DY": "Dentistry (grad)",
     "OMS": "Oral & Maxillofacial Surgery", "BV": "Behavioural Science", "GPM": "Dental Practice Mgmt",
     "RY": "Dental Radiology", "DI": "Dental Implantology", "CD": "Clinical Dentistry",
     "IY": "Independent Study", "OL": "Oral Biology", "OY": "Oral Pathology", "RS": "Research (UROP)",
     # ---- Duke-NUS / LKYSPP ----
-    "GMS": "Medicine", "PP": "Public Policy", "PPX": "Exchange placeholder",
+    "GMS": "Medicine", "PP": "Public Policy", "PPX": "Public Policy eXchange placeholder",
     # ---- Law ----
     "LL": "Law", "LLJ": "Law (grad)", "LC": "Law (LLB core)", "LLD": "Law (doctoral)",
-    "LE": "Exchange placeholder", "LCJ": "Law (JD core)", "LCC": "Law (common law)", "LCD": "Law (grad)",
+    "LE": "Law Elective - exchange", "LCJ": "Law (JD core)", "LCC": "Law (common law)", "LCD": "Law (grad)",
     # ---- Institutes / interdisciplinary ----
     "LI": "Logistics & Supply Chain", "MB": "Mechanobiology (external)", "CG": "Computer Eng.",
     "FE": "Financial Eng.", "DTS": "Defence Technology & Systems", "QT": "Quantum Technologies",
     # ---- NUS central units ----
     "ETP": "Entrepreneurship", "TR": "Entrepreneurship & start-ups", "CFG": "Career readiness",
     "DMX": "Design-Your-Own module", "ADS": "Applied Data Science", "CLC": "Community Leadership",
-    "SFI": "Southeast Asia immersion", "THE": "Wellbeing & learning skills", "RW": "Wellbeing modules",
+    "SFI": "Southeast Asia immersion", "THE": "Transition to Higher Education", "RW": "Wellbeing modules",
     "ALS": "Learning skills", "IDS": "Data Science (grad)", "POY": "Polytechnic bridging modules",
     "BBB": "Advanced Placement credit", "BBC": "Credit transfer", "BBD": "Advanced Placement credit",
     "DMY": "Design-Your-Own module",
     # ---- NUS Business School ----
     "BMA": "Business Administration (grad)", "BMS": "Business (grad core)", "FIN": "Finance",
-    "MKT": "Marketing", "MNO": "Mgmt & Organisation", "RE": "Real Estate", "REX": "Exchange placeholder",
+    "MKT": "Marketing", "MNO": "Mgmt & Organisation", "RE": "Real Estate", "REX": "Real Estate eXchange placeholder",
     "BME": "Business (exec)", "ACC": "Accounting", "BAA": "Accounting (PhD)", "BMC": "Business Mgmt (grad)",
-    "BXT": "Exchange placeholder", "DOS": "Operations & Supply Chain", "DBA": "Business Analytics & Operations",
+    "BXT": "Business eXchange Topic", "DOS": "Operations & Supply Chain", "DBA": "Business Analytics & Operations",
     "DAO": "Decision Analytics & Operations", "DSC": "Decision Analytics", "DSN": "Analytics",
     "BMF": "Finance (grad)", "BMD": "Finance (FinTech)", "BMK": "Marketing Analytics", "BZD": "Business research methods (PhD)",
     "BSP": "Strategy & Policy", "BSN": "Entrepreneurship", "BBP": "Business (PhD)", "BSE": "Business Economics",
@@ -156,7 +173,7 @@ CURATED = {
     "BLD": "Leadership Development", "BRP": "Business (PhD seminars)", "BHD": "Honours dissertation",
     "BPM": "Business foundations", "BST": "Business (special topics)", "STR": "Career readiness",
     "XFB": "Integrated Honours project", "BCP": "Consulting Practicum", "FSP": "Field Service Project",
-    "UTOB": "Teaching assistantship (UTOP)",
+    "UTOB": "Undergrad Teaching Opportunities: Business",
     # ---- NUS College ----
     "NST": "NUS College: Science & Technology", "NTW": "NUS College: Thinking with Writing", "NEX": "NUS College: Global Experience",
     "NFB": "Exchange placeholder", "NFC": "Exchange placeholder", "NFS": "Exchange placeholder",
@@ -165,16 +182,16 @@ CURATED = {
     "NPS": "NUS College: Problem Solving", "NRM": "NUS College: Research (UROP)",
     # ---- NUS Graduate School ----
     "GS": "Graduate research skills", "NG": "Graduate research skills", "GSN": "Neuroscience (grad)",
-    "GSE": "Exchange placeholder (grad)", "LSE": "Environmental Life Sciences Eng.", "GSC": "Computational Biology",
-    "GSG": "Materials Science (grad)", "GSS": "Graduate seminars",
+    "GSE": "Graduate School eXchange placeholder", "LSE": "Environmental Life Sciences Eng.", "GSC": "Computational Biology",
+    "GSG": "Materials Science (grad)", "GSS": "Graduate Speaking Seminars",
     # ---- NUS-ISS: Institute of Systems Science ----
     "EBA": "Business Analytics", "DL": "Digital Leadership", "ED": "Digital Technology Mgmt",
     "SA": "Software Eng.", "SWE": "Software Eng. (grad)", "ISY": "Intelligent Systems",
     "EDT": "Digital Technology Mgmt",
     # ---- Residential Colleges ----
     "UTC": "UTown College Programme", "UTS": "UTown College: Singapore Studies", "RVN": "Ridge View College",
-    "RVC": "Ridge View College", "RVSS": "Ridge View College", "RVR": "Ridge View College: Research", "DMR": "Design-Your-Own module",
-    "WR": "Workplace Readiness", "UTOR": "Teaching assistantship (UTOP)",
+    "RVC": "Ridge View: Communities & engagement", "RVSS": "Ridge View College", "RVR": "Ridge View College: Research", "DMR": "Design-Your-Own module",
+    "WR": "Workplace Readiness", "UTOR": "Undergrad Teaching Opportunities: Ridge View College",
     # ---- Public Health ----
     "SPH": "Public Health", "HE": "Health Economics (HEOR)",
     # ---- Science ----
@@ -185,13 +202,13 @@ CURATED = {
     "FSC": "Forensic Science", "SP": "Science research & communication", "MW": "Science Communication",
     "HSI": "Gen-Ed: Scientific Inquiry", "AIS": "AI in Science", "COS": "Computational Thinking",
     "CZ": "Computational Science & Eng.", "ML": "Materials Science (grad)", "LSX": "Veterinary Science (exchange)",
-    "SX": "Exchange placeholder", "SCI": "External modules", "DMS": "Design-Your-Own module",
+    "SX": "Science eXchange placeholder", "SCI": "External modules", "DMS": "Design-Your-Own module",
     "FDP": "Foundation Maths & Physics", "XFS": "Integrated Honours project", "SSS": "Natural Heritage of Singapore",
-    "UTOS": "Teaching assistantship (UTOP)",
+    "UTOS": "Undergrad Teaching Opportunities: Science",
     # ---- YST Conservatory of Music ----
     "MUA": "Music (performance)", "MUT": "Music Theory & Composition", "MUH": "Music History",
-    "MUL": "Languages for Musicians", "MUX": "Exchange placeholder", "CFA": "Performing Arts practice",
-    "UTOM": "Teaching assistantship (UTOP)",
+    "MUL": "Languages for Musicians", "MUX": "MUsic eXchange placeholder", "CFA": "Performing Arts practice",
+    "UTOM": "Undergrad Teaching Opportunities: Music",
     # ---- Yale-NUS College (winding down) ----
     "YHU": "Yale-NUS: Humanities", "YSS": "Yale-NUS: Social Sciences", "YSC": "Yale-NUS: Sciences",
     "YCC": "Yale-NUS: Common Curriculum", "YID": "Yale-NUS: Environmental Studies", "YIR": "Yale-NUS: Independent Research",
@@ -199,16 +216,16 @@ CURATED = {
     "YLS": "Yale-NUS: Spanish", "YLG": "Yale-NUS: Ancient Greek", "YLL": "Yale-NUS: Latin", "YLN": "Yale-NUS: Singapore Sign Language",
     "YCT": "Yale-NUS: College Seminars", "YSP": "Yale-NUS: Strategy & Leadership",
     # ---- Yong Loo Lin School of Medicine ----
-    "NUR": "Nursing", "NX": "Exchange placeholder", "MD": "Medicine (MBBS)", "MDG": "Biomedical Science (grad)",
+    "NUR": "Nursing", "NX": "Nursing eXchange placeholder", "MD": "Medicine (MBBS)", "MDG": "Biomedical Science (grad)",
     "SLP": "Speech & Language Pathology", "PHC": "Pharmacology", "PA": "Pharmacology", "BMI": "Biomedical Informatics",
     "AUD": "Audiology", "PHM": "Precision Medicine", "CMH": "Clinical Mental Health", "HM": "Psychiatry (grad)",
     "BIS": "Behavioural & Implementation Science", "BIH": "Behavioural & Implementation Science",
     "HPP": "Human Potential & Performance", "ABM": "Biomedicine (grad)", "IDE": "Infectious Disease & Outbreak",
     "SM": "Sustainable Healthcare", "NLM": "Nutrition & Lifestyle Medicine", "MCI": "Clinical Research",
     "CAH": "Child & Adolescent Health", "OPT": "Optometry", "VM": "Palliative Medicine", "MIH": "Integrative Health",
-    "CDM": "Cancer Biology", "EHB": "Bioethics", "HI": "Health Informatics", "HLM": "Healthy Longevity Medicine",
+    "CDM": "Cancer biology & Disease Mechanisms", "EHB": "Bioethics", "HI": "Health Informatics", "HLM": "Healthy Longevity Medicine",
     "HLE": "Healthcare Law & Ethics", "AY": "Anatomy", "MIC": "Microbiology & Immunology", "PX": "Pathology",
-    "PY": "Physiology", "VHC": "Sports & Health", "UTON": "Teaching assistantship (UTOP)",
+    "PY": "Physiology", "VHC": "Sports & Health", "UTON": "Undergrad Teaching Opportunities: Nursing",
 }
 
 PALETTE = ["#4f46e5", "#0891b2", "#059669", "#d97706", "#dc2626", "#7c3aed",
@@ -338,7 +355,7 @@ font-size:13.5px}
 .d-count{font-size:12px;color:var(--mut);margin:6px 0 2px}"""
 
 CFG = {"ACAD_YEAR": ACAD_YEAR, "ABBR": ABBR, "DEPT_FIX": DEPT_FIX,
-       "CURATED": CURATED, "PALETTE": PALETTE}
+       "FACULTY_FIX": FACULTY_FIX, "CURATED": CURATED, "PALETTE": PALETTE}
 
 CFG_JSON = json.dumps(CFG, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
 
@@ -358,7 +375,13 @@ border-radius:9px;background:var(--card);color:var(--ink);cursor:pointer}
 # ---- the page's own runtime: fetch -> compute -> render -> interact ----
 JS = r"""
 const CFG=JSON.parse(document.getElementById('CFG').textContent);
-const CURATED=CFG.CURATED,ABBR=CFG.ABBR,DEPT_FIX=CFG.DEPT_FIX,PALETTE=CFG.PALETTE,ACAD_YEAR=CFG.ACAD_YEAR;
+const CURATED=CFG.CURATED,ABBR=CFG.ABBR,DEPT_FIX=CFG.DEPT_FIX,FACULTY_FIX=CFG.FACULTY_FIX,PALETTE=CFG.PALETTE,ACAD_YEAR=CFG.ACAD_YEAR;
+/* The 13 General Education pillars are university-wide by design: any faculty may
+   offer them, so they never have a single owning department however small the
+   current catalogue happens to be. */
+const GE_PILLARS=new Set(['GEA','GEC','GEH','GEI','GEK','GEM','GEN','GEQ','GER','GES','GESS','GET','GEX']);
+const OWN_DEPT=0.40;   // a department "owns" a prefix at >=40% of its modules
+const SIG_FAC=0.15, SIG_MIN=3;  // a faculty is significant at >=15% and >=3 modules
 let DATA={};
 
 const grid=document.getElementById('grid'),loading=document.getElementById('loading'),errbox=document.getElementById('errbox');
@@ -371,20 +394,66 @@ let curColor='#4f46e5';
 /* ---------- helpers (mirrors of the Python build) ---------- */
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function cleanDep(n){n=DEPT_FIX[n]||n;n=n.replace(/’/g,"'");n=n.replace(/([,.;:])(?=\S)/g,'$1 ');return n.trim();}
+function cleanFac(n){return FACULTY_FIX[n]||n;}
+function abbrOf(f){return ABBR[f]||f.slice(0,4).toUpperCase();}
 function prefixOf(code){const m=/^([A-Z]+)/.exec(code||'');return m?m[1]:null;}
 function inc(map,k){map.set(k,(map.get(k)||0)+1);}
 function topKey(map){let bk=null,bv=-1;for(const [k,v] of map){if(v>bv){bv=v;bk=k;}}return bk;}
 function sumTotal(recs){let s=0;for(const r of recs)s+=r.total;return s;}
+
+/* ---------- ownership ----------
+   The faculty and the department must be decided together. Taking the mode of each
+   independently can name a pair that never co-occurs -- GEH used to come out as
+   "Physics" (its most common department) under "Arts and Social Science" (its most
+   common faculty), which is two different sets of modules talking past each other. */
+function sigFacs(e){
+  return [...e.fac.entries()].sort((a,b)=>b[1]-a[1])
+    .filter(([,c])=>c/e.total>=SIG_FAC&&c>=SIG_MIN);
+}
+const SEP='\u0000';   // faculty names contain spaces, so key (faculty, department) pairs on a NUL
+function domDepIn(e,fac){
+  let bk=null,bv=-1;
+  for(const [k,v] of e.pair){const i=k.indexOf(SEP);
+    if(k.slice(0,i)!==fac)continue; if(v>bv){bv=v;bk=k.slice(i+1);}}
+  return bk;
+}
+function classify(p,e){
+  const sf=sigFacs(e),topFac=topKey(e.fac);
+  const topDepShare=Math.max(...e.dep.values())/e.total;
+  if(GE_PILLARS.has(p)||(e.total>=8&&topDepShare<OWN_DEPT)){
+    // No department owns this prefix. Either it is spread across faculties
+    // (university-wide) or across many departments inside one faculty.
+    if(GE_PILLARS.has(p)||sf.length>1||e.fac.size>=4)
+      return {tier:'wide',dep:'Multiple departments',fac:'University-wide',abbr:'NUS'};
+    return {tier:'multidept',dep:'Multiple departments',fac:topFac,abbr:abbrOf(topFac)};
+  }
+  if(sf.length===2){
+    const fA=sf[0][0],fB=sf[1][0],dA=domDepIn(e,fA),dB=domDepIn(e,fB);
+    // Two significant faculties naming the SAME department is the API labelling one
+    // unit twice, not a joint programme -- fall through to single owner.
+    if(dA!==dB)return {tier:'joint',dep:dA+' + '+dB,fac:fA+' + '+fB,
+                       abbr:abbrOf(fA)+' + '+abbrOf(fB)};
+  }
+  return {tier:'single',dep:domDepIn(e,topFac),fac:topFac,abbr:abbrOf(topFac)};
+}
+function spanSummary(e){
+  const facs=[...e.fac.entries()].sort((a,b)=>b[1]-a[1]);
+  return 'Spans '+e.fac.size+(e.fac.size===1?' faculty, ':' faculties, ')
+    +e.dep.size+(e.dep.size===1?' department':' departments')
+    +'. Top: '+facs.slice(0,7).map(([f,c])=>abbrOf(f)+' '+c).join(' · ');
+}
 
 /* ---------- build the tree from raw moduleInfo ---------- */
 function build(mods){
   const pf=new Map(),modrecs=new Map();
   for(const m of mods){
     const p=prefixOf(m.moduleCode); if(!p)continue;
-    if(!pf.has(p)){pf.set(p,{fac:new Map(),dep:new Map(),total:0,offered:0,ug:0,grad:0,examples:new Map()});modrecs.set(p,[]);}
+    if(!pf.has(p)){pf.set(p,{fac:new Map(),dep:new Map(),pair:new Map(),total:0,offered:0,ug:0,grad:0,examples:new Map()});modrecs.set(p,[]);}
     const e=pf.get(p);
-    inc(e.fac,m.faculty||'(none)');
-    inc(e.dep,cleanDep(m.department||'(none)'));
+    const mfac=cleanFac(m.faculty||'(none)'),mdep=cleanDep(m.department||'(none)');
+    inc(e.fac,mfac);
+    inc(e.dep,mdep);
+    inc(e.pair,mfac+SEP+mdep);
     e.total++;
     const off=Array.isArray(m.semesterData)&&m.semesterData.length>0;
     if(off)e.offered++;
@@ -401,14 +470,20 @@ function build(mods){
   const tree=new Map(),facTot=new Map(),facOff=new Map();
   DATA={};
   for(const [p,e] of pf){
-    const fac=topKey(e.fac),dep=topKey(e.dep);
-    const rec={prefix:p,total:e.total,offered:e.offered,ug:e.ug,grad:e.grad,spanFac:e.fac.size,example:topKey(e.examples)||''};
+    const c=classify(p,e);
+    // Joint programmes keep a single home in the tree (their dominant faculty) so the
+    // prefix appears once; the chip and drawer still name both owners.
+    const fac=c.tier==='joint'?topKey(e.fac):c.fac;
+    const dep=c.tier==='joint'?domDepIn(e,topKey(e.fac)):c.dep;
+    const rec={prefix:p,total:e.total,offered:e.offered,ug:e.ug,grad:e.grad,spanFac:e.fac.size,tier:c.tier,example:topKey(e.examples)||''};
     if(!tree.has(fac))tree.set(fac,new Map());
     const dm=tree.get(fac); if(!dm.has(dep))dm.set(dep,[]);
     dm.get(dep).push(rec);
     facTot.set(fac,(facTot.get(fac)||0)+e.total);
     facOff.set(fac,(facOff.get(fac)||0)+e.offered);
-    DATA[p]={fac,abbr:ABBR[fac]||fac.slice(0,4).toUpperCase(),dep,gloss:CURATED[p]||'',total:e.total,offered:e.offered,m:modrecs.get(p)};
+    DATA[p]={fac:c.fac,abbr:c.abbr,dep:c.dep,tier:c.tier,span:spanSummary(e),
+             gloss:CURATED[p]||'',total:e.total,offered:e.offered,ug:e.ug,grad:e.grad,
+             m:modrecs.get(p)};
   }
   const facOrder=[...facTot.keys()].sort((a,b)=>facTot.get(b)-facTot.get(a)); // stable -> ties keep first-seen
   return {tree,facTot,facOff,facOrder};
@@ -424,7 +499,9 @@ function render(b){
     let nPfx=0; depts.forEach(([,r])=>nPfx+=r.length);
     const deptHtml=depts.map(([dep,recs])=>{
       const chips=recs.map(r=>{
-        const span=r.spanFac>1?' <span class="span" title="also appears in other faculties/departments">⧉</span>':'';
+        const d=DATA[r.prefix]||{dep,fac,abbr,tier:'single',span:''};
+        const span=(r.tier!=='single'||r.spanFac>1)
+          ?' <span class="span" title="'+esc(d.span)+'">⧉</span>':'';
         const ug=r.ug,gr=r.grad,known=ug+gr; let bar;
         if(known){const ugp=Math.round(ug*100/known);
           bar='<div class="ratio" title="'+ug+' undergraduate · '+gr+' graduate ('+ugp+'% UG)">'
@@ -435,8 +512,8 @@ function render(b){
         const gloss=CURATED[r.prefix]||'';
         const tip=esc(r.prefix)+(gloss?' — '+esc(gloss):'');
         return '<div class="chip" onclick="openPrefix(\''+esc(r.prefix)+'\')" role="button" tabindex="0" '
-          +'data-search="'+esc(r.prefix.toLowerCase())+' '+esc(dep.toLowerCase())+' '+esc(fac.toLowerCase())+' '+esc(abbr.toLowerCase())+'" '
-          +'data-prefix="'+esc(r.prefix.toLowerCase())+'" data-dept="'+esc(dep.toLowerCase())+'" data-fac="'+esc(fac.toLowerCase())+' '+esc(abbr.toLowerCase())+'" data-abbr="'+esc(abbr.toLowerCase())+'" '
+          +'data-search="'+esc(r.prefix.toLowerCase())+' '+esc(d.dep.toLowerCase())+' '+esc(d.fac.toLowerCase())+' '+esc(d.abbr.toLowerCase())+'" '
+          +'data-prefix="'+esc(r.prefix.toLowerCase())+'" data-dept="'+esc(d.dep.toLowerCase())+'" data-fac="'+esc(d.fac.toLowerCase())+' '+esc(d.abbr.toLowerCase())+'" data-abbr="'+esc(d.abbr.toLowerCase())+'" '
           +'data-offered="'+r.offered+'" data-total="'+r.total+'" data-gradonly="'+gradOnly+'" data-tip="'+tip+'">'
           +'<div class="pfx">'+esc(r.prefix)+span+'</div>'
           +'<div class="gloss">'+esc(gloss)+'</div>'
@@ -467,7 +544,8 @@ function openPrefix(p){
   const b=document.getElementById('dbadge'); b.textContent=p; b.style.background=curColor;
   document.getElementById('dtitle').textContent=info.dep;
   document.getElementById('dgloss').textContent=info.gloss||'';
-  document.getElementById('dsub').textContent=info.abbr+' · '+info.fac+' — '+info.total+' modules, '+info.offered+' currently offered';
+  document.getElementById('dsub').textContent=info.abbr+' · '+info.fac+' — '+info.total+' modules, '+info.offered+' currently offered'
+    +(info.tier&&info.tier!=='single'?'  ·  '+info.span:'');
   dq.value=''; renderMods(p,''); ov.classList.add('on'); document.body.style.overflow='hidden'; dq.focus();
 }
 function renderMods(p,filter){
